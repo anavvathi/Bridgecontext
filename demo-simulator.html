@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BridgeContext - Full Feature Simulator</title>
+    <link rel="stylesheet" href="content.css">
+    <link rel="stylesheet" href="popup.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f0f2f5;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Mock AI Interface (Gemini-style) */
+        .mock-ui {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .ai-header {
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .ai-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1a73e8, #d93025, #f9ab00, #188038);
+            border-radius: 8px;
+        }
+
+        .ai-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #1f1f1f;
+        }
+
+        .chat-container {
+            flex: 1;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: #e8f0fe;
+            color: #1a73e8;
+        }
+
+        .ai-message {
+            align-self: flex-start;
+            background-color: #f1f3f4;
+            color: #3c4043;
+        }
+
+        .input-area {
+            margin-top: auto;
+            border: 1px solid #dadce0;
+            border-radius: 28px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            background: #fff;
+        }
+
+        #prompt-textarea,
+        div[contenteditable="true"] {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-size: 15px;
+            min-height: 24px;
+            resize: none;
+        }
+
+        .simulator-notice {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            z-index: 1000000;
+        }
+
+        /* v1.2 & v2.0 Pulse Styles */
+        @keyframes cr-pulse-detected {
+            0% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(6, 182, 212, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(6, 182, 212, 0);
+            }
+        }
+
+        @keyframes cr-pulse-urgent {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7);
+            }
+
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 12px rgba(99, 102, 241, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
+            }
+        }
+
+        .cr-pulse-detected {
+            animation: cr-pulse-detected 2s infinite;
+            border: 2px solid #06b6d4 !important;
+        }
+
+        .cr-pulse-urgent {
+            animation: cr-pulse-urgent 1.5s infinite ease-in-out;
+            border: 2px solid #6366f1 !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="simulator-notice">
+        <b>Simulator Mode:</b> BridgeContext extension logic is running on this page.
+    </div>
+
+    <div class="mock-ui">
+        <div class="ai-header">
+            <div class="ai-logo"></div>
+            <div class="ai-title">Gemini Simulator</div>
+        </div>
+
+        <div class="chat-container">
+            <div class="message ai-message">
+                Hello! I'm Gemini. How can I help you today?
+            </div>
+
+            <div class="message user-message">
+                I'm testing the BridgeContext extension.
+            </div>
+
+            <div class="message ai-message">
+                Great! You can click the floating switchboard icon in the bottom right corner to inject your stored
+                context packs.
+            </div>
+
+            <div class="input-area">
+                <div contenteditable="true" placeholder="Type 'Python' or 'SaaS' to see smart suggestions..."
+                    id="mock-input"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- The extension UI will be injected here by the script -->
+
+    <script type="module">
+        // MOCK STORAGE
+        const StorageLocal = {
+            async get(key) {
+                const data = localStorage.getItem(key);
+                return data ? JSON.parse(data) : null;
+            },
+            async set(key, value) {
+                localStorage.setItem(key, JSON.stringify(value));
+            },
+            async getAllPacks() {
+                let packs = await this.get('context_packs');
+                if (!packs || packs.length === 0) {
+                    packs = [
+                        { id: 'exp_1', name: '🚀 SaaS Legal Pro', desc: 'DPA, Terms of Service expert.', data: 'SaaS Legal Context' },
+                        { id: 'exp_2', name: '💻 Senior Python Dev', desc: 'Clean code & PEP8.', data: 'Python Dev Context' },
+                        { id: 'exp_3', name: '🥗 Fitness Guru', desc: 'Macro tracking science.', data: 'Fitness Context' }
+                    ];
+                    await this.set('context_packs', packs);
+                }
+                return packs;
+            },
+            async savePack(pack) {
+                const packs = await this.getAllPacks();
+                const existingIndex = packs.findIndex(p => p.id === pack.id);
+                if (existingIndex > -1) packs[existingIndex] = pack;
+                else packs.push({ ...pack, id: pack.id || Date.now().toString() });
+                await this.set('context_packs', packs);
+            },
+            encodePack(pack) { return btoa(JSON.stringify({ n: pack.name, d: pack.desc, c: pack.data })); },
+            decodeCode(code) { try { const decoded = JSON.parse(atob(code)); return { name: decoded.n, desc: decoded.d, data: decoded.c }; } catch (e) { return null; } }
+        };
+
+        // MOCK SCRAPER
+        const Scraper = {
+            async capture() {
+                // Simulate finding context
+                const rawData = "Hello! Gemini here. I'm helping you with your SaaS project. I will always use Python for the backend. Cool, thanks!";
+                return {
+                    name: 'Simulated: Project Info',
+                    data: window.Compressor ? window.Compressor.process(rawData) : rawData,
+                    source: 'Gemini Simulator'
+                };
+            }
+        };
+
+        // CONTENT SCRIPT LOGIC (Adapted from content.js)
+        const BRIDGE_CONTEXT_ICON = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
+          <line x1="12" y1="6" x2="12" y2="18"></line>
+          <circle cx="7" cy="12" r="1.5"></circle>
+          <circle cx="17" cy="12" r="1.5"></circle>
+        </svg>
+        `;
+
+        async function renderMenuList() {
+            const list = document.getElementById('cr-menu-list');
+            if (!list) return;
+            const packs = await StorageLocal.getAllPacks();
+            list.innerHTML = packs.map(pack => `
+                <div class="cr-context-item" data-id="${pack.id}">
+                  <div class="cr-item-name">${pack.name}</div>
+                  <div class="cr-item-desc">${pack.desc}</div>
+                </div>
+            `).join('');
+            document.querySelectorAll('.cr-context-item').forEach(item => {
+                item.addEventListener('click', async () => {
+                    const packId = item.getAttribute('data-id');
+                    const allPacks = await StorageLocal.getAllPacks();
+                    const pack = allPacks.find(p => p.id === packId);
+                    if (pack) injectContext(pack);
+                    document.getElementById('cr-switchboard-menu').classList.remove('open');
+                });
+            });
+        }
+
+        function injectContext(pack) {
+            const input = document.getElementById('mock-input');
+            if (input) {
+                input.innerText = `[Context: ${pack.name}] - Initializing background... `;
+                input.focus();
+                // Move cursor to end
+                const range = document.createRange();
+                const sel = window.getSelection();
+                range.selectNodeContents(input);
+                range.collapse(false);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        function initSwitchboard() {
+            const container = document.createElement('div');
+            container.id = 'cr-switchboard-container';
+            container.innerHTML = `
+                <div id="cr-switchboard-menu">
+                  <div class="cr-menu-header">
+                    <span>BridgeContext</span>
+                    <button id="cr-capture-btn" style="font-size: 10px; background: #6366f1; color: white; border: none; padding: 2px 6px; border-radius: 4px; cursor: pointer;">Capture</button>
+                  </div>
+                  <div class="cr-menu-list" id="cr-menu-list">
+                    <div style="padding: 20px; text-align: center; font-size: 11px; opacity: 0.6;">Loading...</div>
+                  </div>
+                </div>
+                <div id="cr-switchboard-trigger">
+                  ${BRIDGE_CONTEXT_ICON}
+                </div>
+            `;
+            document.body.appendChild(container);
+            renderMenuList();
+
+            const trigger = document.getElementById('cr-switchboard-trigger');
+            const menu = document.getElementById('cr-switchboard-menu');
+
+            trigger.addEventListener('click', () => menu.classList.toggle('open'));
+
+            // v2.0: Smart Suggestion Simulation
+            const input = document.getElementById('mock-input');
+            input.addEventListener('input', (e) => {
+                const text = e.target.innerText.toLowerCase();
+                if (text.includes('python') || text.includes('saas')) {
+                    trigger.classList.add('cr-pulse-urgent');
+                    trigger.setAttribute('title', 'Smart Suggestion: SaaS Legal Pro');
+                } else {
+                    trigger.classList.remove('cr-pulse-urgent');
+                    trigger.removeAttribute('title');
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target) && menu.classList.contains('open')) menu.classList.remove('open');
+            });
+
+            const captureBtn = document.getElementById('cr-capture-btn');
+            captureBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                captureBtn.innerText = 'Scraping...';
+                const captured = await Scraper.capture();
+                if (captured) {
+                    await StorageLocal.savePack({ id: 'sim_cap', name: captured.name, desc: `Imported from ${captured.source}`, data: captured.data });
+                    alert(`Captured: ${captured.name}`);
+                    renderMenuList();
+                }
+                captureBtn.innerText = 'Capture';
+            });
+        }
+
+        initSwitchboard();
+        setTimeout(() => {
+            const trigger = document.getElementById('cr-switchboard-trigger');
+            if (trigger) trigger.classList.add('cr-pulse-active');
+        }, 1000);
+
+    </script>
+</body>
+
+</html>
