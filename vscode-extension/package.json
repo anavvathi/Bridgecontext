@@ -1,0 +1,49 @@
+{
+    "name": "bridgecontext-vscode",
+    "displayName": "BridgeContext",
+    "description": "Bridge AI context from your browser directly into VS Code.",
+    "version": "1.0.0",
+    "publisher": "BridgeContext",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onView:bridgecontext-view",
+        "onCommand:bridgecontext.refresh"
+    ],
+    "main": "./src/extension.js",
+    "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "bridgecontext-explorer",
+                    "title": "BridgeContext",
+                    "icon": "media/icon.svg"
+                }
+            ]
+        },
+        "views": {
+            "bridgecontext-explorer": [
+                {
+                    "type": "webview",
+                    "id": "bridgecontext-view",
+                    "name": "Incoming Context"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "bridgecontext.refresh",
+                "title": "Refresh Bridge"
+            }
+        ]
+    },
+    "scripts": {
+        "lint": "eslint .",
+        "pretest": "npm run lint",
+        "test": "node ./test/runTest.js"
+    }
+}

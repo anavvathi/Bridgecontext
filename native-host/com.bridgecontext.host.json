@@ -1,0 +1,9 @@
+{
+    "name": "com.bridgecontext.host",
+    "description": "BridgeContext Native Host for IDE Sync",
+    "path": "C:\\Users\\anves\\Downloads\\Develop\\ContextAI\\native-host\\bridge-host.bat",
+    "type": "stdio",
+    "allowed_origins": [
+        "chrome-extension://mobgcbdljfigdjkdcfmdfmgnmjeapcoh/"
+    ]
+}

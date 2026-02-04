@@ -18,7 +18,7 @@ if (typeof Sanitizer === 'undefined') {
             // Phone numbers (Basic international/domestic)
             phone: /(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g
         },
-
+        
         redact(text) {
             if (!text) return "";
             let cleaned = text;

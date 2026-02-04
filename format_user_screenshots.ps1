@@ -31,10 +31,8 @@ function Resize-Screenshot {
     $g.Dispose()
 }
 
-$img0 = "C:\Users\anves\.gemini\antigravity\brain\29a9dc14-89b1-477b-a485-de26c8b6fcc7\uploaded_media_0_1770061815006.png"
-$img1 = "C:\Users\anves\.gemini\antigravity\brain\29a9dc14-89b1-477b-a485-de26c8b6fcc7\uploaded_media_1_1770061815006.png"
+$img1 = "C:\Users\anves\.gemini\antigravity\brain\5df32427-6bc6-4d75-9777-b07874f1410b\uploaded_media_1_1770242256287.png"
 
-Resize-Screenshot -sourcePath $img0 -destPath "c:\Users\anves\Downloads\Develop\ContextAI\screenshot_ui_1.png" -width 1280 -height 800
-Resize-Screenshot -sourcePath $img1 -destPath "c:\Users\anves\Downloads\Develop\ContextAI\screenshot_ui_2.png" -width 1280 -height 800
+Resize-Screenshot -sourcePath $img1 -destPath "c:\Users\anves\Downloads\Develop\ContextAI\store_screenshot_v1.4.1.png" -width 1280 -height 800
 
 Write-Host "Additional screenshots formatted and saved successfully."

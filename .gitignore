@@ -1,0 +1,17 @@
+# Binaries & Zips
+*.zip
+*.png
+!icons/*.png
+
+# IDEs
+.vscode/
+
+# Build folders
+bridge_context_v1.4.0/
+node_modules/
+.next/
+out/
+
+# OS files
+.DS_Store
+Thumbs.db

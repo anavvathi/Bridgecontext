@@ -88,21 +88,12 @@ if (typeof StorageLocal === 'undefined') {
         },
 
         async getAllPacks() {
-            let packs = await this.get('context_packs');
+            let packs = await this.get('context_packs') || [];
+            const experts = await this.getExpertPacks();
 
-            // If empty, start with a welcome pack instead of all experts
-            if (!packs || packs.length === 0) {
-                packs = [
-                    {
-                        id: 'welcome_1',
-                        name: '👋 Welcome to BridgeContext',
-                        desc: 'Your first local memory pack.',
-                        data: 'This is an example pack. You can delete it and add your own context.'
-                    }
-                ];
-                await this.set('context_packs', packs);
-            }
-            return packs;
+            // Merge custom packs with expert personalities
+            // We prepend experts to make them easily discoverable
+            return [...experts, ...packs];
         },
 
         // Team Features (Mock)
@@ -314,7 +305,8 @@ if (typeof StorageLocal === 'undefined') {
 
         encodePack(pack) {
             const data = JSON.stringify({ n: pack.name, d: pack.desc, c: pack.data });
-            return btoa(data);
+            // v1.4.1: Support for UTF-8 (emojis/special chars) in Base64
+            return btoa(unescape(encodeURIComponent(data)));
         },
 
         decodeCode(code) {
@@ -325,7 +317,7 @@ if (typeof StorageLocal === 'undefined') {
                     cleanCode = code.replace('BC_SHARE:', '');
                 }
 
-                const decoded = JSON.parse(atob(cleanCode));
+                const decoded = JSON.parse(decodeURIComponent(escape(atob(cleanCode))));
                 return {
                     name: decoded.n,
                     desc: decoded.d,
