@@ -32,12 +32,19 @@ class BridgeContextViewProvider {
         this._view = undefined;
         this._exchangePath = path.join(__dirname, '..', '..', 'native-host', 'exchange.json');
 
-        // Watch for changes in the exchange file
-        fs.watchFile(this._exchangePath, (curr, prev) => {
-            if (this._view) {
-                this.refresh();
-            }
-        });
+        // Watch for changes in the exchange file using a faster event-driven approach
+        this._watchTimeout = null;
+        if (fs.existsSync(path.dirname(this._exchangePath))) {
+            fs.watch(path.dirname(this._exchangePath), (eventType, filename) => {
+                if (filename === 'exchange.json') {
+                    // Debounce reloads to handle atomic write events (write + rename)
+                    if (this._watchTimeout) clearTimeout(this._watchTimeout);
+                    this._watchTimeout = setTimeout(() => {
+                        if (this._view) this.refresh();
+                    }, 100);
+                }
+            });
+        }
     }
 
     resolveWebviewView(webviewView, context, _token) {
@@ -116,17 +123,48 @@ class BridgeContextViewProvider {
                         const container = document.getElementById('content');
                         
                         if (message.type === 'update') {
-                            container.innerHTML = '<div class="card">' +
-                                '<div class="title">' + message.pack.name + '</div>' +
-                                '<div class="desc">' + message.pack.desc + '</div>' +
-                                '<div style="display: flex; gap: 5px;">' +
-                                    '<button onclick="insert()">Inject into Code</button>' +
-                                    '<button onclick="copy()" style="background: var(--vscode-button-secondaryBackground); color: var(--vscode-button-secondaryForeground);">Copy</button>' +
-                                '</div>' +
-                            '</div>';
+                            container.innerHTML = ''; // Safe clear
+                            
+                            const card = document.createElement('div');
+                            card.className = 'card';
+                            
+                            const title = document.createElement('div');
+                            title.className = 'title';
+                            title.textContent = message.pack.name;
+                            
+                            const desc = document.createElement('div');
+                            desc.className = 'desc';
+                            desc.textContent = message.pack.desc;
+                            
+                            const actions = document.createElement('div');
+                            actions.style.display = 'flex';
+                            actions.style.gap = '5px';
+                            
+                            const injectBtn = document.createElement('button');
+                            injectBtn.textContent = 'Inject into Code';
+                            injectBtn.onclick = insert;
+                            
+                            const copyBtn = document.createElement('button');
+                            copyBtn.textContent = 'Copy';
+                            copyBtn.style.background = 'var(--vscode-button-secondaryBackground)';
+                            copyBtn.style.color = 'var(--vscode-button-secondaryForeground)';
+                            copyBtn.onclick = copy;
+                            
+                            actions.appendChild(injectBtn);
+                            actions.appendChild(copyBtn);
+                            
+                            card.appendChild(title);
+                            card.appendChild(desc);
+                            card.appendChild(actions);
+                            
+                            container.appendChild(card);
                             window.currentText = message.pack.data;
                         } else if (message.type === 'empty') {
-                            container.innerHTML = '<div class="empty">No active bridge found.</div>';
+                            const empty = document.createElement('div');
+                            empty.className = 'empty';
+                            empty.textContent = 'No active bridge found.';
+                            container.innerHTML = '';
+                            container.appendChild(empty);
                         }
                     });
 

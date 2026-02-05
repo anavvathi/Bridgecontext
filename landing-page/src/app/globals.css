@@ -11,7 +11,7 @@
   --glass-highlight: rgba(255, 255, 255, 0.03);
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);

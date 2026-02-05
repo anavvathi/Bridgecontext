@@ -1,51 +1,68 @@
-const { spawn } = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
+const EXCHANGE_FILE = path.join(__dirname, 'exchange.json');
 const HOST_SCRIPT = path.join(__dirname, 'bridge-host.js');
 
-function runTest(payloadSizeKB) {
-    console.log(`\n--- Stress Test: ${payloadSizeKB}KB Payload ---`);
-
-    // Generate a massive string
-    const largeData = 'A'.repeat(payloadSizeKB * 1024);
+function simulateSync(id) {
     const pack = {
-        name: `STRESS_TEST_${payloadSizeKB}KB`,
-        desc: 'Automated Stress Test Payload',
-        data: largeData
+        name: `Stress Test ${id}`,
+        desc: `Description for ${id}`,
+        data: `Data payload for ${id}`
     };
-
     const message = {
         action: 'sync',
         pack: pack
     };
 
-    const child = spawn('node', [HOST_SCRIPT]);
-
+    // Simulate Native Messaging header (4 bytes LE length)
     const content = Buffer.from(JSON.stringify(message));
     const header = Buffer.alloc(4);
     header.writeUInt32LE(content.length, 0);
 
-    let output = '';
-    child.stdout.on('data', (data) => {
-        output += data.toString();
-    });
+    const input = Buffer.concat([header, content]);
 
-    child.on('close', (code) => {
-        console.log(`✓ Process closed with code ${code}`);
-        if (output.includes('success')) {
-            console.log('✓ SUCCESS: Host handled the payload.');
-        } else {
-            console.log('✗ FAILURE: Unexpected output or crash.');
-        }
-    });
-
-    // Write header then content
-    child.stdin.write(header);
-    child.stdin.write(content);
-    child.stdin.end();
+    // Run host script with the simulated input
+    try {
+        execSync(`node "${HOST_SCRIPT}"`, { input: input });
+        return true;
+    } catch (e) {
+        console.error(`Failed at iteration ${id}:`, e.message);
+        return false;
+    }
 }
 
-console.log('Starting Synthetic Bridge Stress Tests...');
-runTest(10);  // 10KB
-runTest(100); // 100KB
-runTest(500); // 500KB (A massive context pack)
+async function runTest() {
+    console.log('🚀 Starting Atomic Write Stress Test...');
+    const iterations = 50;
+    let successCount = 0;
+
+    for (let i = 0; i < iterations; i++) {
+        process.stdout.write(`\rProgress: ${i + 1}/${iterations}`);
+        if (simulateSync(i)) {
+            // Verify file integrity immediately after sync
+            try {
+                const content = fs.readFileSync(EXCHANGE_FILE, 'utf8');
+                const parsed = JSON.parse(content);
+                if (parsed.name === `Stress Test ${i}`) {
+                    successCount++;
+                } else {
+                    console.error(`\n❌ Integrity Mismatch at ${i}: Expected "Stress Test ${i}", got "${parsed.name}"`);
+                }
+            } catch (e) {
+                console.error(`\n❌ Read/Parse Error at ${i}:`, e.message);
+            }
+        }
+    }
+
+    console.log(`\n\nFinal Result: ${successCount}/${iterations} successful atomic operations.`);
+    if (successCount === iterations) {
+        console.log('✅ TEST PASSED: Atomic writes are robust.');
+    } else {
+        console.log('❌ TEST FAILED: Data corruption or race condition detected.');
+        process.exit(1);
+    }
+}
+
+runTest();

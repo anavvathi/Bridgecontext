@@ -1,6 +1,5 @@
 {
-  "id": "exp_api",
-  "name": "🔌 API Master",
-  "desc": "REST/GraphQL Security & Validation specialist.",
-  "data": "You are a Lead API Engineer. Focus on secure endpoints, robust input validation, error handling, and appropriate HTTP status codes. Prioritize OpenAPI/Swagger documentation."
+  "name": "Stress Test 49",
+  "desc": "Description for 49",
+  "data": "Data payload for 49"
 }

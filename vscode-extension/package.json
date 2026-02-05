@@ -2,7 +2,7 @@
     "name": "bridgecontext-vscode",
     "displayName": "BridgeContext",
     "description": "Bridge AI context from your browser directly into VS Code.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "publisher": "BridgeContext",
     "engines": {
         "vscode": "^1.80.0"
@@ -10,10 +10,12 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": [
-        "onView:bridgecontext-view",
-        "onCommand:bridgecontext.refresh"
-    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/anavvathi/Bridgecontext"
+    },
+    "license": "GPL-3.0",
+    "icon": "media/icon.png",
     "main": "./src/extension.js",
     "contributes": {
         "viewsContainers": {
@@ -30,7 +32,8 @@
                 {
                     "type": "webview",
                     "id": "bridgecontext-view",
-                    "name": "Incoming Context"
+                    "name": "Incoming Context",
+                    "icon": "media/icon.svg"
                 }
             ]
         },

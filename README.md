@@ -2,7 +2,7 @@
 **The local-first bridge between AI silos.**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-1.4.1-green.svg)](https://github.com/anavvathi/Bridgecontext)
+[![Version](https://img.shields.io/badge/version-1.4.2-green.svg)](https://github.com/anavvathi/Bridgecontext)
 
 BridgeContext is a Chrome Extension designed for "model-polyglot" AI power users. It allows you to seamlessly capture context from one AI platform (like ChatGPT) and "inject" it into another (like Claude or Gemini) with zero copy-pasting and 100% local privacy.
 
@@ -12,12 +12,12 @@ We live in an era of model fragmentation. One AI is better at coding, another at
 **BridgeContext removes that friction.**
 
 ### ✨ Key Features
-- **Web Shuttles (v1.4.1)**: Instant 1-click transport to ChatGPT, Claude, or Gemini.
+- **Web Shuttles (v1.4.2)**: Instant 1-click transport to ChatGPT, Claude, or Gemini.
 - **Universal Capture**: Robust scraping engine for ChatGPT, Claude, Gemini, DeepSeek, Grok, and more.
 - **Smart Injection**: Injects context directly into chat inputs, supporting complex React and Svelte frameworks.
 - **Local-Only Memory**: Your context never leaves your machine. Data is stored securely in your browser's local sandbox.
 - **Expert Packs**: Pre-loaded with specialized personas (Architect, API Master) to prime your AI conversations.
-- **Native IDE Bridge**: Direct context piping into VS Code for a seamless browser-to-code workflow.
+- **Unified IDE Bridge**: Direct context piping into **VS Code**, **Cursor**, **JetBrains**, **Neovim**, and **Antigravity IDE**.
 
 ## 🛠️ How it Works
 1. **Bridge**: Click "Bridge Context" in the popup on any AI page to save the current thread.
@@ -33,9 +33,15 @@ BridgeContext was built with a privacy-native architecture:
 Check out our full [Privacy Policy](PRIVACY.md).
 
 ## 📥 Installation
-The easiest way is to install via the **[Chrome Web Store](https://chromewebstore.google.com/detail/bridgecontext/kgfdnbpnjilbclbobhcmnbbkfenlfafh)**.
 
-For manual development:
+### **The One-Click Way (Recommended)**
+If you want to support all IDEs at once, run:
+```bash
+node master-install.js
+```
+This will register the native bridge and attempt to install plugins for VS Code, Cursor, Neovim, and Sublime Text automatically.
+
+### Manual Installation (Standard)
 1. Download this repository.
 2. Go to `chrome://extensions`.
 3. Enable **Developer mode** (top right).
@@ -49,9 +55,9 @@ This project is licensed under the **GNU GPL v3.0** - see the [LICENSE](LICENSE)
 
 ---
 
-## 💻 IDE Integration (VS Code)
+## 💻 IDE Integrations (VS Code, JetBrains, Neovim & More)
 
-BridgeContext now supports direct context injection into VS Code, allowing you to bridge the gap between AI research and local development.
+BridgeContext supports direct context injection into almost every major professional environment, including **VS Code**, **Cursor**, **IntelliJ / JetBrains**, **Neovim**, and **Antigravity IDE**.
 
 ### Features
 - **One-Click Sync**: Move your AI thought process from browser to IDE instantly.

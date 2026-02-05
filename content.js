@@ -13,13 +13,26 @@ if (!window._contextBridgeInitialized) {
 
         const toast = document.createElement('div');
         toast.className = 'cr-toast';
-        toast.innerHTML = `
-            <div class="cr-toast-icon">${icon}</div>
-            <div class="cr-toast-body">
-                <div class="cr-toast-title">${title}</div>
-                <div class="cr-toast-desc">${desc}</div>
-            </div>
-        `;
+
+        const iconEl = document.createElement('div');
+        iconEl.className = 'cr-toast-icon';
+        iconEl.textContent = icon;
+
+        const bodyEl = document.createElement('div');
+        bodyEl.className = 'cr-toast-body';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'cr-toast-title';
+        titleEl.textContent = title;
+
+        const descEl = document.createElement('div');
+        descEl.className = 'cr-toast-desc';
+        descEl.textContent = desc;
+
+        bodyEl.appendChild(titleEl);
+        bodyEl.appendChild(descEl);
+        toast.appendChild(iconEl);
+        toast.appendChild(bodyEl);
 
         container.appendChild(toast);
 
@@ -142,17 +155,47 @@ if (!window._contextBridgeInitialized) {
         const prompt = document.createElement('div');
         prompt.id = 'bridge-context-prompt';
         prompt.className = 'bridge-prompt-toast';
-        prompt.innerHTML = `
-            <div class="bridge-prompt-icon">🚀</div>
-            <div class="bridge-prompt-content">
-                <div class="bridge-prompt-title">Bridge Context?</div>
-                <div class="bridge-prompt-desc">Incoming Context: <b>${bridge.name}</b></div>
-            </div>
-            <div class="bridge-prompt-actions">
-                <button id="bridge-prompt-inject" class="bridge-confirm-btn">Inject</button>
-                <button id="bridge-prompt-dismiss" class="bridge-dismiss-btn">✕</button>
-            </div>
-        `;
+
+        const iconEl = document.createElement('div');
+        iconEl.className = 'bridge-prompt-icon';
+        iconEl.textContent = '🚀';
+
+        const contentEl = document.createElement('div');
+        contentEl.className = 'bridge-prompt-content';
+
+        const titleEl = document.createElement('div');
+        titleEl.className = 'bridge-prompt-title';
+        titleEl.textContent = 'Bridge Context?';
+
+        const descEl = document.createElement('div');
+        descEl.className = 'bridge-prompt-desc';
+        descEl.textContent = 'Incoming Context: ';
+        const nameEl = document.createElement('b');
+        nameEl.textContent = bridge.name;
+        descEl.appendChild(nameEl);
+
+        contentEl.appendChild(titleEl);
+        contentEl.appendChild(descEl);
+
+        const actionsEl = document.createElement('div');
+        actionsEl.className = 'bridge-prompt-actions';
+
+        const injectBtn = document.createElement('button');
+        injectBtn.id = 'bridge-prompt-inject';
+        injectBtn.className = 'bridge-confirm-btn';
+        injectBtn.textContent = 'Inject';
+
+        const dismissBtn = document.createElement('button');
+        dismissBtn.id = 'bridge-prompt-dismiss';
+        dismissBtn.className = 'bridge-dismiss-btn';
+        dismissBtn.textContent = '✕';
+
+        actionsEl.appendChild(injectBtn);
+        actionsEl.appendChild(dismissBtn);
+
+        prompt.appendChild(iconEl);
+        prompt.appendChild(contentEl);
+        prompt.appendChild(actionsEl);
 
         document.body.appendChild(prompt);
 

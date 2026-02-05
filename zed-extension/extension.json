@@ -1,0 +1,10 @@
+{
+    "id": "bridge-context",
+    "name": "BridgeContext",
+    "version": "0.1.0",
+    "description": "Bridge AI context from your browser into Zed.",
+    "authors": [
+        "Anvesh"
+    ],
+    "repository": "https://github.com/anavvathi/Bridgecontext"
+}

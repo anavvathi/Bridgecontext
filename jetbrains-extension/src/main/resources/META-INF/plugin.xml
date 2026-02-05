@@ -1,0 +1,20 @@
+<idea-plugin>
+    <id>com.bridgecontext.jetbrains</id>
+    <name>BridgeContext</name>
+    <vendor email="support@bridgecontext.com" url="https://bridgecontext.com">BridgeContext</vendor>
+
+    <description><![CDATA[
+    Bridge AI context from your browser directly into JetBrains IDEs.<br>
+    <em>The local-first bridge between AI silos.</em>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="BridgeContext" 
+                    secondary="true" 
+                    icon="/icons/pluginIcon.png" 
+                    anchor="right" 
+                    factoryClass="com.bridgecontext.BridgeToolWindowFactory"/>
+    </extensions>
+</idea-plugin>

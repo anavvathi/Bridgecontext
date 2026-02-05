@@ -4,6 +4,7 @@
     "path": "C:\\Users\\anves\\Downloads\\Develop\\ContextAI\\native-host\\bridge-host.bat",
     "type": "stdio",
     "allowed_origins": [
+        "chrome-extension://kgfdnbpnjilbclbobhcmnbbkfenlfafh/",
         "chrome-extension://mobgcbdljfigdjkdcfmdfmgnmjeapcoh/"
     ]
 }
