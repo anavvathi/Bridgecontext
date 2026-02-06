@@ -106,6 +106,9 @@ function sendResponse(id, result) {
 // Smithery Sandbox Support
 function createSandboxServer() {
     return {
+        connect: async () => {
+            process.stderr.write('☁️ Smithery Sandbox Connect Simulation\n');
+        },
         tools: [{
             name: 'get_current_context',
             description: 'Retrieve the latest AI context bridged from the browser.'
