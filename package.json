@@ -1,0 +1,27 @@
+{
+    "name": "bridge-context-root",
+    "version": "1.0.0",
+    "private": true,
+    "description": "Root workspace for BridgeContext suite",
+    "workspaces": [
+        "landing-page",
+        "vscode-extension"
+    ],
+    "scripts": {
+        "install:all": "node master-install.js",
+        "dev:landing": "npm run dev --workspace=landing-page",
+        "build:landing": "npm run build --workspace=landing-page",
+        "lint:landing": "npm run lint --workspace=landing-page",
+        "mcp": "node mcp-server.js",
+        "postinstall": "echo 'Root installed. Consider running `npm run install:all` for full suite setup.'"
+    },
+    "keywords": [
+        "ai",
+        "bridge",
+        "context",
+        "chrome-extension",
+        "ide-integration"
+    ],
+    "author": "Anvesh",
+    "license": "GPL-3.0"
+}

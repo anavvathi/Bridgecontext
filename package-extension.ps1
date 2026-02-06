@@ -3,7 +3,7 @@ $version = (Get-Content manifest.json | ConvertFrom-Json).version
 $zipName = "BridgeContext_v$($version)_Ready.zip"
 $outputPath = Join-Path (Get-Location) $zipName
 
-Write-Host "📦 Packaging BridgeContext v$version..." -ForegroundColor Cyan
+Write-Host "Packaging BridgeContext v$version..."
 
 # Define files and folders to include
 $includeList = @(
@@ -22,7 +22,7 @@ $includeList = @(
     "native-host"
 )
 
-# Define exclusions for native-host (remove test scripts and logs)
+# Define exclusions for native-host
 $excludeList = @(
     "native-host\exchange.json",
     "native-host\exchange.json.tmp",
@@ -30,7 +30,7 @@ $excludeList = @(
     "native-host\test-browser-sim.js"
 )
 
-# Create a clean temporary directory for packaging
+# Create a clean temporary directory
 $tempDir = New-Item -Path "temp_package" -ItemType Directory -Force
 
 foreach ($item in $includeList) {
@@ -39,7 +39,7 @@ foreach ($item in $includeList) {
     }
 }
 
-# Remove excluded items from temp
+# Remove excluded items
 foreach ($exclude in $excludeList) {
     $target = Join-Path $tempDir $exclude
     if (Test-Path $target) {
@@ -54,5 +54,5 @@ Compress-Archive -Path "$tempDir\*" -DestinationPath $outputPath
 # Cleanup
 Remove-Item $tempDir -Recurse -Force
 
-Write-Host "Production ZIP created: $zipName" -ForegroundColor Green
-Write-Host "Next Step: Upload to Chrome Web Store Console." -ForegroundColor Yellow
+Write-Host "Production ZIP created: $zipName"
+Write-Host "Next Step: Upload to Chrome Web Store Console."

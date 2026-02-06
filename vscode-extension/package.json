@@ -4,6 +4,13 @@
     "description": "Bridge AI context from your browser directly into VS Code.",
     "version": "1.1.0",
     "publisher": "BridgeContext",
+    "main": "./src/extension.js",
+    "files": [
+        "src",
+        "media",
+        "LICENSE",
+        "README.md"
+    ],
     "engines": {
         "vscode": "^1.80.0"
     },
@@ -16,7 +23,6 @@
     },
     "license": "GPL-3.0",
     "icon": "media/icon.png",
-    "main": "./src/extension.js",
     "contributes": {
         "viewsContainers": {
             "activitybar": [
