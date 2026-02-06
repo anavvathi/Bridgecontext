@@ -26,7 +26,7 @@ async function install() {
         try {
             console.log(`Checking for ${cmd}...`);
             // Attempt to install the VSIX if available, or just log instructions
-            const vsixPath = path.join(PROJECT_ROOT, 'bridgecontext-vscode-1.0.0.vsix');
+            const vsixPath = path.join(PROJECT_ROOT, 'bridgecontext-vscode-1.1.0-Latest.vsix');
             if (fs.existsSync(vsixPath)) {
                 execSync(`${cmd} --install-extension "${vsixPath}"`, { stdio: 'inherit' });
                 console.log(`✅ ${cmd} extension installed.`);
@@ -77,11 +77,53 @@ async function install() {
     }
 
     console.log('\n[5/5] Registering Antigravity IDE / MCP Support...');
-    const mcpServerPath = path.join(PROJECT_ROOT, 'mcp-server.js');
-    console.log(`💡 MCP Server available at: ${mcpServerPath}`);
-    console.log('To activate in Antigravity or Cursor:');
-    console.log(`1. Open Settings -> MCP Servers`);
-    console.log(`2. Add new server: "node ${mcpServerPath.replace(/\\/g, '/')}"`);
+    const mcpServerPath = path.join(PROJECT_ROOT, 'mcp-server.js').replace(/\\/g, '/');
+
+    // Auto-patching Cursor & Antigravity (shared config structure)
+    const ideNames = ['Antigravity', 'Cursor'];
+    ideNames.forEach(ide => {
+        const configPath = path.join(process.env.APPDATA, ide, 'User', 'globalStorage', 'mcpServers.json');
+        try {
+            let config = { mcpServers: {} };
+            if (fs.existsSync(configPath)) {
+                config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            } else {
+                if (!fs.existsSync(path.dirname(configPath))) {
+                    fs.mkdirSync(path.dirname(configPath), { recursive: true });
+                }
+            }
+
+            config.mcpServers['BridgeContext'] = {
+                command: 'node',
+                args: [mcpServerPath],
+                enabled: true
+            };
+
+            fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+            console.log(`✅ Automatically registered in ${ide} MCP settings.`);
+        } catch (e) {
+            console.log(`ℹ️ Could not auto-register in ${ide}. Path: ${configPath}`);
+        }
+    });
+
+    // Claude Desktop Support
+    const claudePath = path.join(process.env.APPDATA, 'Claude', 'claude_desktop_config.json');
+    try {
+        if (fs.existsSync(claudePath)) {
+            let claudeConfig = JSON.parse(fs.readFileSync(claudePath, 'utf8'));
+            if (!claudeConfig.mcpServers) claudeConfig.mcpServers = {};
+            claudeConfig.mcpServers['BridgeContext'] = {
+                command: 'node',
+                args: [mcpServerPath]
+            };
+            fs.writeFileSync(claudePath, JSON.stringify(claudeConfig, null, 2));
+            console.log('✅ Automatically registered in Claude Desktop.');
+        }
+    } catch (e) {
+        console.log('ℹ️ Claude Desktop skip.');
+    }
+
+    console.log(`\n💡 Manual MCP Command: node ${mcpServerPath}`);
 
     console.log('\n-------------------------------------------');
     console.log('🎉 Production Suite Installation Complete!');

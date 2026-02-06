@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "BridgeContext",
   "version": "1.4.2",
-  "description": "The Universal Memory Proxy. Bridge context between ChatGPT, Claude, and Gemini with Expert Packs.",
+  "description": "The Universal AI Memory Proxy. Bridge context between your favorite AI chat platforms and IDEs.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -11,7 +11,6 @@
   "permissions": [
     "storage",
     "activeTab",
-    "scripting",
     "nativeMessaging"
   ],
   "host_permissions": [

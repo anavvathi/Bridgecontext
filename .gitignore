@@ -11,6 +11,12 @@ bridge_context_v1.4.0/
 node_modules/
 .next/
 out/
+jetbrains-extension/.gradle/
+jetbrains-extension/.intellijPlatform/
+jetbrains-extension/.kotlin/
+jetbrains-extension/build/
+release_bundle/
+build_log.txt
 
 # OS files
 .DS_Store

@@ -1,9 +1,23 @@
 local M = {}
 
 local last_ctx = nil
+local function find_exchange_file()
+    -- Priority 1: Current working directory (monorepo usage)
+    local local_path = vim.fn.getcwd() .. "/native-host/exchange.json"
+    if vim.fn.filereadable(local_path) == 1 then return local_path end
+    
+    -- Priority 2: Standard project structure relative to this script
+    local script_path = debug.getinfo(1).source:sub(2)
+    local project_root = vim.fn.fnamemodify(script_path, ":h:h:h:h")
+    local standard_path = project_root .. "/native-host/exchange.json"
+    if vim.fn.filereadable(standard_path) == 1 then return standard_path end
+
+    return local_path -- Fallback to CWD
+end
+
 local options = {
-    path = vim.fn.getcwd() .. "/native-host/exchange.json",
-    silent = false, -- If true, won't show notifications on every sync
+    path = find_exchange_file(),
+    silent = false,
 }
 
 -- Function to read and parse the exchange file
