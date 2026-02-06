@@ -1,0 +1,22 @@
+{
+    "name": "bridge-context",
+    "version": "1.0.0",
+    "description": "Universal Browser-to-IDE context proxy. Bridge context from your browser into Antigravity, Cursor, VS Code, and more.",
+    "publisher": "anavvathi",
+    "repository": "https://github.com/anavvathi/Bridgecontext",
+    "license": "GPL-3.0",
+    "keywords": [
+        "productivity",
+        "developer-tools",
+        "ai",
+        "context-bridge"
+    ],
+    "main": "mcp-server.js",
+    "bin": "mcp-server.js",
+    "install": "npm install",
+    "build": "echo 'No build step required'",
+    "runtime": "node",
+    "commands": {
+        "run": "node mcp-server.js"
+    }
+}
