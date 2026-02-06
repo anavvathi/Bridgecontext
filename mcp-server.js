@@ -127,4 +127,7 @@ if (require.main === module) {
     main();
 }
 
-module.exports = { createSandboxServer };
+// Export for Smithery/Scanner compatibility
+module.exports = createSandboxServer;
+module.exports.default = createSandboxServer;
+module.exports.createSandboxServer = createSandboxServer;
