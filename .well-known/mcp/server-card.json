@@ -1,0 +1,18 @@
+{
+    "mcpCardVersion": "1.0",
+    "name": "bridge-context",
+    "version": "1.4.2",
+    "description": "Universal Browser-to-IDE context bridge. Sync AI research from your browser to Antigravity, Cursor, VS Code, and more.",
+    "tools": [
+        {
+            "name": "get_current_context",
+            "description": "Retrieve the latest AI context bridged from the browser.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {}
+            }
+        }
+    ],
+    "license": "GPL-3.0",
+    "repository": "https://github.com/anavvathi/Bridgecontext"
+}
