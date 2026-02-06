@@ -106,8 +106,9 @@ function sendResponse(id, result) {
 // Smithery Sandbox Support
 function createSandboxServer() {
     return {
-        connect: async () => {
+        connect: async (transport) => {
             process.stderr.write('☁️ Smithery Sandbox Connect Simulation\n');
+            // Mock a successful handshake
         },
         listTools: async () => {
             return {
@@ -116,7 +117,9 @@ function createSandboxServer() {
                     description: 'Retrieve the latest AI context bridged from the browser.'
                 }]
             };
-        }
+        },
+        setRequestHandler: () => { },
+        notification: () => { }
     };
 }
 
