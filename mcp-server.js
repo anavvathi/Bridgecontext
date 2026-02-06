@@ -1,9 +1,40 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
+const { execSync } = require('child_process');
 
-// Resolve path relative to the script location
-const EXCHANGE_PATH = path.join(__dirname, 'native-host', 'exchange.json');
+function findExchangeFile() {
+    // 1. Check environment variable
+    if (process.env.BRIDGE_CONTEXT_EXCHANGE) return process.env.BRIDGE_CONTEXT_EXCHANGE;
+
+    // 2. Check local relative path (dev mode)
+    const localPath = path.join(__dirname, 'native-host', 'exchange.json');
+    if (fs.existsSync(localPath)) return localPath;
+
+    // 3. Windows Registry Discovery
+    if (process.platform === 'win32') {
+        try {
+            const hostName = 'com.bridgecontext.host';
+            const regBuffer = execSync(`reg query "HKEY_CURRENT_USER\\Software\\Google\\Chrome\\NativeMessagingHosts\\${hostName}" /ve`);
+            const regOutput = regBuffer.toString();
+            const match = regOutput.match(/REG_SZ\s+(.*)/);
+            if (match && match[1]) {
+                const manifestPath = match[1].trim();
+                const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                if (manifest.path) {
+                    const exchangePath = path.join(path.dirname(manifest.path), 'exchange.json');
+                    if (fs.existsSync(exchangePath)) return exchangePath;
+                }
+            }
+        } catch (e) { /* silent fail */ }
+    }
+
+    // 4. Fallback to CWD
+    return path.join(process.cwd(), 'native-host', 'exchange.json');
+}
+
+const EXCHANGE_PATH = findExchangeFile();
 
 async function main() {
     process.stderr.write('🌉 BridgeContext MCP Server active\n');
@@ -72,4 +103,18 @@ function sendResponse(id, result) {
     process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\n');
 }
 
-main();
+// Smithery Sandbox Support
+function createSandboxServer() {
+    return {
+        tools: [{
+            name: 'get_current_context',
+            description: 'Retrieve the latest AI context bridged from the browser.'
+        }]
+    };
+}
+
+if (require.main === module) {
+    main();
+}
+
+module.exports = { createSandboxServer };
