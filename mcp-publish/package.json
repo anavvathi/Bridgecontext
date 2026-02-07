@@ -1,0 +1,19 @@
+{
+  "name": "bridge-context",
+  "version": "1.0.0",
+  "description": "Bridge AI context from your browser to your IDE via MCP",
+  "main": "mcp-server.js",
+  "bin": {
+    "bridge-context": "mcp-server.js"
+  },
+  "keywords": [
+    "ai",
+    "mcp",
+    "bridge",
+    "context",
+    "chrome-extension"
+  ],
+  "author": "Anvesh",
+  "license": "GPL-3.0",
+  "dependencies": {}
+}
