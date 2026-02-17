@@ -2,7 +2,7 @@
 **The local-first bridge between AI silos.**
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Version](https://img.shields.io/badge/version-1.4.2-green.svg)](https://github.com/anavvathi/Bridgecontext)
+[![Version](https://img.shields.io/badge/version-1.5.0-green.svg)](https://github.com/anavvathi/Bridgecontext)
 
 BridgeContext is a Chrome Extension designed for "model-polyglot" AI power users. It allows you to seamlessly capture context from one AI platform (like ChatGPT) and "inject" it into another (like Claude or Gemini) with zero copy-pasting and 100% local privacy.
 
@@ -12,7 +12,10 @@ We live in an era of model fragmentation. One AI is better at coding, another at
 **BridgeContext removes that friction.**
 
 ### ✨ Key Features
-- **Web Shuttles (v1.4.2)**: Instant 1-click transport to ChatGPT, Claude, or Gemini.
+- **🔍 Smart Search (v1.5.0)**: Find any saved context instantly with full-text search across names, descriptions, content, and tags.
+- **🏷️ Tagging System (v1.5.0)**: Organize contexts with pre-defined or custom tags. Filter by project, tech stack, or topic.
+- **📊 Usage Analytics (v1.5.0)**: Track contexts saved per month, see your most-used tags, and calculate time saved.
+- **Web Shuttles**: Instant 1-click transport to ChatGPT, Claude, or Gemini.
 - **Universal Capture**: Robust scraping engine for ChatGPT, Claude, Gemini, DeepSeek, Grok, and more.
 - **Smart Injection**: Injects context directly into chat inputs, supporting complex React and Svelte frameworks.
 - **Local-Only Memory**: Your context never leaves your machine. Data is stored securely in your browser's local sandbox.
