@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "BridgeContext",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "description": "The Universal AI Memory Proxy. Bridge context between your favorite AI chat platforms and IDEs.",
   "icons": {
     "16": "icons/icon16.png",

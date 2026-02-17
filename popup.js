@@ -19,20 +19,87 @@ async function checkBridgeStatus() {
   });
 }
 
-async function renderPacks() {
-  const packs = await StorageLocal.getAllPacks();
+// Search functionality
+let allPacks = [];
+let searchDebounceTimer = null;
 
-  if (packs.length === 0) {
+const searchInput = document.getElementById('search-input');
+const searchResultsCount = document.getElementById('search-results-count');
+
+function debounce(func, delay) {
+  return function (...args) {
+    clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = setTimeout(() => func.apply(this, args), delay);
+  };
+}
+
+function performSearch(searchTerm) {
+  const term = searchTerm.toLowerCase().trim();
+
+  if (!term) {
+    // Show all packs
+    document.querySelectorAll('.pack-card').forEach(card => {
+      card.classList.remove('search-hidden', 'search-highlight');
+    });
+    searchResultsCount.textContent = '';
+    return;
+  }
+
+  let visibleCount = 0;
+  document.querySelectorAll('.pack-card').forEach(card => {
+    const packId = card.getAttribute('data-id');
+    const pack = allPacks.find(p => p.id === packId);
+
+    if (pack) {
+      const tags = pack.tags ? pack.tags.join(' ') : '';
+      const searchableText = `${pack.name} ${pack.desc} ${pack.data || ''} ${tags}`.toLowerCase();
+      const matches = searchableText.includes(term);
+
+      if (matches) {
+        card.classList.remove('search-hidden');
+        card.classList.add('search-highlight');
+        visibleCount++;
+      } else {
+        card.classList.add('search-hidden');
+        card.classList.remove('search-highlight');
+      }
+    }
+  });
+
+  searchResultsCount.textContent = visibleCount === 0
+    ? 'No results found'
+    : `${visibleCount} result${visibleCount !== 1 ? 's' : ''} found`;
+}
+
+if (searchInput) {
+  searchInput.addEventListener('input', debounce((e) => {
+    performSearch(e.target.value);
+  }, 300));
+}
+
+async function renderPacks() {
+  allPacks = await StorageLocal.getAllPacks();
+
+  if (allPacks.length === 0) {
     packsList.innerHTML = '<div class="loading">No custom packs yet. Add one!</div>';
   } else {
-    packsList.innerHTML = packs.map(pack => renderPackCard(pack)).join('');
+    packsList.innerHTML = allPacks.map(pack => renderPackCard(pack)).join('');
   }
 
   attachCardListeners();
+
+  // Reset search when packs are re-rendered
+  if (searchInput && searchInput.value) {
+    performSearch(searchInput.value);
+  }
 }
 
 function renderPackCard(pack) {
   const isExpert = pack.id.startsWith('exp_') || pack.id.startsWith('welcome_');
+  const tagsHtml = pack.tags && pack.tags.length > 0
+    ? `<div class="pack-tags">${pack.tags.map(tag => `<span class="pack-tag">${tag}</span>`).join('')}</div>`
+    : '';
+
   return `
     <div class="pack-card ${isExpert ? 'expert-card' : ''}" data-id="${pack.id}">
       <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -48,6 +115,7 @@ function renderPackCard(pack) {
         </div>
       </div>
       <div class="pack-desc">${pack.desc}</div>
+      ${tagsHtml}
     </div>
   `;
 }
@@ -217,13 +285,23 @@ async function handleCaptureResponse(response) {
       return;
     }
 
-    await StorageLocal.savePack({
+    const packData = {
       name: customName || response.captured.name,
       desc: `Bridged from ${response.captured.source}`,
-      data: response.captured.data
-    });
+      data: response.captured.data,
+      tags: [] // Could add auto-tagging based on source
+    };
+
+    await StorageLocal.savePack(packData);
+
+    // Track analytics
+    if (window.BridgeAnalytics) {
+      await window.BridgeAnalytics.trackContextSaved(packData);
+    }
+
     showToast(`Bridged: ${customName || response.captured.name}`);
     renderPacks();
+    renderUsageStats();
   } else {
     showToast("No active context found.");
   }
@@ -240,6 +318,106 @@ const packDescInput = document.getElementById('pack-desc-input');
 const packDataInput = document.getElementById('pack-data-input');
 const packModalTitle = document.getElementById('pack-modal-title');
 
+// Tagging System
+const packTagsInput = document.getElementById('pack-tags-input');
+const selectedTagsContainer = document.getElementById('selected-tags');
+const tagSuggestionsContainer = document.getElementById('tag-suggestions');
+
+const PREDEFINED_TAGS = [
+  'React', 'Python', 'JavaScript', 'TypeScript', 'Work', 'Personal',
+  'Tutorial', 'Bug Fix', 'Feature', 'Documentation', 'API', 'Database',
+  'Frontend', 'Backend', 'DevOps', 'Testing', 'Security', 'Performance'
+];
+
+let selectedTags = [];
+
+function renderSelectedTags() {
+  if (selectedTags.length === 0) {
+    selectedTagsContainer.innerHTML = '';
+    return;
+  }
+
+  selectedTagsContainer.innerHTML = selectedTags.map(tag => `
+    <div class="tag-chip">
+      ${tag}
+      <span class="remove-tag" data-tag="${tag}">×</span>
+    </div>
+  `).join('');
+
+  // Attach remove listeners
+  selectedTagsContainer.querySelectorAll('.remove-tag').forEach(btn => {
+    btn.onclick = () => {
+      const tag = btn.getAttribute('data-tag');
+      selectedTags = selectedTags.filter(t => t !== tag);
+      renderSelectedTags();
+      updateTagSuggestions(packTagsInput.value);
+    };
+  });
+}
+
+function updateTagSuggestions(input) {
+  const term = input.toLowerCase().trim();
+
+  if (!term) {
+    tagSuggestionsContainer.classList.remove('show');
+    return;
+  }
+
+  const suggestions = PREDEFINED_TAGS.filter(tag =>
+    tag.toLowerCase().includes(term) && !selectedTags.includes(tag)
+  );
+
+  if (suggestions.length === 0) {
+    tagSuggestionsContainer.classList.remove('show');
+    return;
+  }
+
+  tagSuggestionsContainer.innerHTML = suggestions.map(tag => `
+    <div class="tag-suggestion-item" data-tag="${tag}">${tag}</div>
+  `).join('');
+
+  tagSuggestionsContainer.classList.add('show');
+
+  // Attach click listeners
+  tagSuggestionsContainer.querySelectorAll('.tag-suggestion-item').forEach(item => {
+    item.onclick = () => {
+      const tag = item.getAttribute('data-tag');
+      addTag(tag);
+    };
+  });
+}
+
+function addTag(tag) {
+  if (!selectedTags.includes(tag)) {
+    selectedTags.push(tag);
+    renderSelectedTags();
+  }
+  packTagsInput.value = '';
+  tagSuggestionsContainer.classList.remove('show');
+  packTagsInput.focus();
+}
+
+if (packTagsInput) {
+  packTagsInput.addEventListener('input', (e) => {
+    updateTagSuggestions(e.target.value);
+  });
+
+  packTagsInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && packTagsInput.value.trim()) {
+      e.preventDefault();
+      const customTag = packTagsInput.value.trim();
+      addTag(customTag);
+    }
+  });
+
+  // Close suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!tagSuggestionsContainer.contains(e.target) && e.target !== packTagsInput) {
+      tagSuggestionsContainer.classList.remove('show');
+    }
+  });
+}
+
 let editingPackId = null;
 
 function openPackModal(pack = null) {
@@ -248,6 +426,8 @@ function openPackModal(pack = null) {
   packNameInput.value = pack ? pack.name : '';
   packDescInput.value = pack ? pack.desc : '';
   packDataInput.value = pack ? (pack.data || '') : '';
+  selectedTags = pack && pack.tags ? pack.tags : [];
+  renderSelectedTags();
   deletePackBtnModal.style.display = pack ? 'block' : 'none';
   packModal.style.display = 'flex';
   packNameInput.focus();
@@ -261,11 +441,19 @@ savePackBtn.onclick = async () => {
   const data = packDataInput.value.trim();
 
   if (name && desc) {
-    const packData = { name, desc, data };
+    const packData = { name, desc, data, tags: selectedTags };
     if (editingPackId) packData.id = editingPackId;
     await StorageLocal.savePack(packData);
+
+    // Track analytics for new packs
+    if (!editingPackId && window.BridgeAnalytics) {
+      await window.BridgeAnalytics.trackContextSaved(packData);
+    }
+
     packModal.style.display = 'none';
+    selectedTags = [];
     renderPacks();
+    renderUsageStats();
     showToast(editingPackId ? 'Pack Updated' : 'New Pack Created');
   } else {
     showToast('Name and Description required.');
@@ -319,3 +507,44 @@ importFile.onchange = async (e) => {
 // Initialize
 checkBridgeStatus();
 renderPacks();
+
+// Usage Stats Display
+async function renderUsageStats() {
+  const statsContainer = document.getElementById('usage-stats');
+  if (!statsContainer || !window.BridgeAnalytics) return;
+
+  try {
+    const summary = await window.BridgeAnalytics.getUsageSummary();
+
+    let html = '<div class="stats-grid">';
+    html += `
+      <div class="stat-item">
+        <span class="stat-value">${summary.totalContexts}</span>
+        <span class="stat-label">Total Saved</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">${summary.thisMonth}</span>
+        <span class="stat-label">This Month</span>
+      </div>
+    `;
+    html += '</div>';
+
+    if (summary.mostUsedTags.length > 0) {
+      html += '<div class="stats-tags">';
+      html += '<div class="stats-tags-title">Top Tags</div>';
+      html += '<div class="stats-tags-list">';
+      summary.mostUsedTags.forEach(({ tag, count }) => {
+        html += `<span class="stat-tag">${tag} (${count})</span>`;
+      });
+      html += '</div></div>';
+    }
+
+    statsContainer.innerHTML = html;
+  } catch (error) {
+    console.error('Failed to render stats:', error);
+    statsContainer.innerHTML = '<div class="stats-loading">Stats unavailable</div>';
+  }
+}
+
+// Render stats on load
+renderUsageStats();

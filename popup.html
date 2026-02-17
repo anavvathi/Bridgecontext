@@ -31,6 +31,13 @@
     </div>
 
     <main id="tab-memory">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <input type="text" id="search-input" class="search-input"
+          placeholder="🔍 Search contexts by name, description, or content..." autocomplete="off" />
+        <div id="search-results-count" class="search-results-count"></div>
+      </div>
+
       <div class="section-title">Your Context Packs</div>
       <div id="packs-list">
         <!-- Packs will be loaded here -->
@@ -52,8 +59,11 @@
 
 
     <footer>
+      <div id="usage-stats" class="usage-stats">
+        <div class="stats-loading">Loading stats...</div>
+      </div>
       <div class="footer-links">
-        <span class="version-tag">v1.4.1 (Local-First)</span>
+        <span class="version-tag">v1.5.0 (Local-First)</span>
       </div>
     </footer>
 
@@ -69,6 +79,15 @@
           <input type="text" id="pack-name-input" placeholder="Pack Name (e.g. My Coding Style)" class="input-field" />
           <input type="text" id="pack-desc-input" placeholder="Description (e.g. For React projects)"
             class="input-field" />
+
+          <!-- Tags Input -->
+          <div class="tags-input-container">
+            <div id="selected-tags" class="selected-tags"></div>
+            <input type="text" id="pack-tags-input" placeholder="Add tags (e.g. React, Python, Work)..."
+              class="input-field" autocomplete="off" />
+            <div id="tag-suggestions" class="tag-suggestions"></div>
+          </div>
+
           <textarea id="pack-data-input" placeholder="Paste your context data here..." class="input-field"
             style="height: 120px; resize: none; font-family: monospace; font-size: 11px;"></textarea>
 
@@ -85,6 +104,7 @@
     <div id="toast" class="toast">Action Successful</div>
   </div>
   <script src="storage.js"></script>
+  <script src="analytics.js"></script>
   <script src="popup.js"></script>
 </body>
 
